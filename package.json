@@ -1,0 +1,36 @@
+{
+  "name": "remindme",
+  "version": "1.0.0",
+  "description": "A web scheduler that emails reminders for tasks and events, prioritizing important tasks with timely notifications.",
+  "homepage": "https://github.com/sonbui2802/remindMe#readme",
+  "bugs": {
+    "url": "https://github.com/sonbui2802/remindMe/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sonbui2802/remindMe.git"
+  },
+  "license": "ISC",
+  "author": "Bui Thai Son",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.13.5",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.16.0",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.0",
+    "react-router-dom": "^7.13.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "nodemon": "^3.1.11"
+  }
+}
