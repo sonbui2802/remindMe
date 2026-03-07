@@ -53,5 +53,10 @@ remindMe
 │       ├── services      # API integration
 │       ├── App.tsx
 │       └── main.tsx
-│
+├── database
+│   └── init.sql # Database schema & table creation script
 └── README.md
+## 🗄️ Database Setup
+A SQL script is provided to initialize the required tables. Run the script against your MySQL instance:
+1. Open your MySQL client (e.g., MySQL Workbench, DBeaver).
+2. Execute the queries inside `database/init.sql` to create `users`, `reminders`, and `emaillog` tables.
