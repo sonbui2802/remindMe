@@ -12,7 +12,11 @@ const pool = mysql.createPool({
     // Added safety limits for concurrent Cron + HTTP requests
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    ssl: {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true
+    }
 });
 
 async function connectDB() {
