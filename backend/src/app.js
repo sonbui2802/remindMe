@@ -32,9 +32,9 @@ const corsOptions = {
   credentials: true,
 };
 
-// 🔥 CORS trước routes
+// CORS trước routes
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+
 
 // ===== MIDDLEWARE =====
 app.use(express.json());
