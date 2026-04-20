@@ -40,7 +40,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // ===== ROUTES =====
-app.use("/", routes);
+app.use("/api", routes);
 
 // ===== CRON =====
 scheduler.init();
