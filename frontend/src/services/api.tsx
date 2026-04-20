@@ -9,7 +9,7 @@ import type {
 export const TOKEN_KEY = 'accessToken';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL:'https://remindme-backend-5sr5.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },
