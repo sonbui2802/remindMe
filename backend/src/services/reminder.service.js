@@ -23,11 +23,14 @@ const reminderService = {
         };
     },
 
-    deleteReminder: async (reminder_id, user_id) => {
+deleteReminder: async (reminder_id, user_id) => {
         const reminder = await reminderModel.findReminderById(reminder_id);
         
         if (!reminder) throw new Error("Reminder not found");
-        if (reminder.user_id !== user_id) throw new Error("Unauthorized");
+        
+        // Đã ép kiểu String() cả 2 vế
+        if (String(reminder.user_id) !== String(user_id)) throw new Error("Unauthorized");
+        
         if (["sent", "completed"].includes(reminder.status)) {
             throw new Error("Cannot delete processed reminder");
         }
@@ -40,7 +43,10 @@ const reminderService = {
     updateReminder: async (reminder_id, user_id, updates) => {
         const reminder = await reminderModel.findReminderById(reminder_id);
         if (!reminder) throw new Error("Reminder not found");
-        if (reminder.user_id !== user_id) throw new Error("Unauthorized");
+        
+        // Đã ép kiểu String() cả 2 vế
+        if (String(reminder.user_id) !== String(user_id)) throw new Error("Unauthorized");
+        
         if (["sent", "completed"].includes(reminder.status)) {
             throw new Error("Cannot update processed reminder");
         }
@@ -53,15 +59,12 @@ const reminderService = {
         return true;
     },
 
-    getReminders: async (user_id) => {
-        const reminders = await reminderModel.findRemindersByUserId(user_id); 
-        return reminders;
-    },
-
     markCompleted: async (reminder_id, user_id) => {
         const reminder = await reminderModel.findReminderById(reminder_id);
         if (!reminder) throw new Error("Reminder not found");
-        if (reminder.user_id !== user_id) throw new Error("Unauthorized");
+        
+        // Đã ép kiểu String() cả 2 vế
+        if (String(reminder.user_id) !== String(user_id)) throw new Error("Unauthorized");
 
         const ok = await reminderModel.updateReminder(reminder_id, { status: "completed" });
         if (!ok) throw new Error("Failed to update status");

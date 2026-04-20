@@ -4,7 +4,7 @@ A full-stack application that allows users to create, manage schedule reminders,
 
 ## 🚀 Live Demo
 
-* **Frontend:** https://remindme-app-drab.vercel.app/
+* **Frontend:** https://remind-me-weld.vercel.app
 * **Backend API:** Hosted on Render
 
 *(Demo account: You can register directly on the homepage).*
