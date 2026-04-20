@@ -5,56 +5,53 @@ import cors from "cors";
 
 const app = express();
 
-// CORS configuration
+// ===== CORS CONFIG =====
 const allowedOrigins = [
-  "https://remind-me-weld.vercel.app",
+  "https://remind-me-weld.vercel.app", 
   "http://localhost:3000",
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Cho phép request không có origin (Postman, curl)
-      if (!origin) return callback(null, true);
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
 
-      // Allow exact domains
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      // Allow Vercel preview deployments (nhưng vẫn check tên project)
-      if (
-        origin.endsWith(".vercel.app") &&
-        origin.includes("remind-me")
-      ) {
-        return callback(null, true);
-      }
+    // Allow preview deploy của chính project
+    if (
+      origin.endsWith(".vercel.app") &&
+      origin.includes("remind-me-weld")
+    ) {
+      return callback(null, true);
+    }
 
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  })
-);
+    return callback(null, false); 
+  },
+  credentials: true,
+};
 
-// Middleware
+// 🔥 CORS trước routes
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+// ===== MIDDLEWARE =====
 app.use(express.json());
 
-// Routes
+// ===== ROUTES =====
 app.use("/", routes);
 
-// Init cron jobs
+// ===== CRON =====
 scheduler.init();
 
-// Global error handler
+// ===== ERROR HANDLER =====
 app.use((err, req, res, next) => {
   console.error("[Global Error Handler]", err);
 
-  const statusCode = err.status || 500;
-  const message = err.message || "Internal Server Error";
-
-  res.status(statusCode).json({
+  res.status(err.status || 500).json({
     error: true,
-    message: message,
+    message: err.message || "Internal Server Error",
   });
 });
 
