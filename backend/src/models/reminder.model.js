@@ -15,7 +15,7 @@ const reminderModel = {
             [reminder_id]
         );
         // PHẢI LÀ DÒNG NÀY: Lấy phần tử đầu tiên, nếu không có thì trả về null
-        return rows[0] || null; 
+        return rows || null; 
     },
     // Hàm này dùng cho getReminders/getAll
     findRemindersByUserId: async (user_id) => {
@@ -61,11 +61,12 @@ const reminderModel = {
      * MUST be called inside a transaction passed from Service.
      */
     findDueRemindersLocked: async (connection, limit = 50) => {
-        // Đổi UTC_TIMESTAMP() thành NOW()
+        // Đổi UTC_TIMESTAMP() thành NOW() và dùng Sub-query để fix lỗi JOIN của TiDB
         const sql = `
-            SELECT r.*, u.gmail 
+            SELECT 
+                r.*, 
+                (SELECT gmail FROM users u WHERE u.user_id = r.user_id) AS gmail
             FROM reminder r
-            JOIN users u ON r.user_id = u.user_id
             WHERE r.status = 'pending' AND r.shown_at <= NOW()
             LIMIT ? 
             FOR UPDATE SKIP LOCKED
