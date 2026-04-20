@@ -1,4 +1,4 @@
-import userProfileModel from "../models/userProfile.model.js";
+import userProfileModel from "../models/userprofile.model.js";
 
 const userProfileService = {
 
