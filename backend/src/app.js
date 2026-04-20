@@ -29,7 +29,7 @@ const corsOptions = {
 
     return callback(null, false); 
   },
-  credentials: true,
+  
 };
 
 // CORS trước routes
