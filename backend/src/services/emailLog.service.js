@@ -4,18 +4,16 @@ import { transporter } from "../config/mail.config.js";
 const emailLogService = {
     processBatch: async () => {
         try {
-            // MATCH NAME: claimPendingEmails (Plural)
             const emails = await emailLogModel.claimPendingEmails(10);
             
             if (!emails || emails.length === 0) return;
 
             console.log(`[Worker] Processing ${emails.length} emails...`);
             
-            // Execute in parallel
-            const tasks = emails.map(email => emailLogService.sendSingleEmail(email));
+            // ✅ FIX LỖI GỬI ĐÚP: Chỉ dùng 1 vòng lặp tuần tự (Xóa dòng map song song)
             for (const email of emails) {
                 await emailLogService.sendSingleEmail(email);
-            } // prevent rate limit
+            }
 
             console.log(`[Worker] Batch complete.`);
         } catch (error) {
@@ -32,11 +30,11 @@ const emailLogService = {
                 text: email.content,
             });
 
-            console.log(`[Sent] ID ${email.email_id} -> ${email.recipient_email}`);
+            console.log(`[Sent] 📩 ID ${email.email_id} -> ${email.recipient_email}`);
             await emailLogModel.updateStatus(email.email_id, 'sent');
 
         } catch (err) {
-            console.error(`[Failed] ID ${email.email_id}: ${err.message}`);
+            console.error(`[Failed] ❌ ID ${email.email_id}: ${err.message}`);
             await emailLogModel.updateStatus(email.email_id, 'failed');
         }
     }

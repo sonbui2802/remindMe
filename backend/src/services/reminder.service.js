@@ -1,4 +1,4 @@
-import pool from '../config/database.js'; // Need pool for transactions
+import pool from '../config/database.js'; 
 import reminderModel from "../models/reminder.model.js";
 import emailLogModel from "../models/emaillog.model.js";
 
@@ -11,26 +11,23 @@ const reminderService = {
             throw new Error("Cannot create reminder in the past!");
         }
         const reminder = await reminderModel.createReminder(
-        title, content, user_id, shown_at
+            title, content, user_id, shown_at
         );
 
-        //  normalize for frontend
         return {
-        reminder_id: reminder.reminder_id,
-        title: reminder.title,
-        content: reminder.content,
-        shown_at: reminder.shown_at,
-        status: reminder.status ?? 'pending'
+            reminder_id: reminder.reminder_id,
+            title: reminder.title,
+            content: reminder.content,
+            shown_at: reminder.shown_at,
+            status: reminder.status ?? 'pending'
         };
-        },
+    },
 
     deleteReminder: async (reminder_id, user_id) => {
         const reminder = await reminderModel.findReminderById(reminder_id);
         
         if (!reminder) throw new Error("Reminder not found");
-        
         if (reminder.user_id !== user_id) throw new Error("Unauthorized");
-        
         if (["sent", "completed"].includes(reminder.status)) {
             throw new Error("Cannot delete processed reminder");
         }
@@ -47,9 +44,7 @@ const reminderService = {
         if (["sent", "completed"].includes(reminder.status)) {
             throw new Error("Cannot update processed reminder");
         }
-        if (updates.shown_at &&
-            new Date(updates.shown_at).getTime() < Date.now()
-        ) {
+        if (updates.shown_at && new Date(updates.shown_at).getTime() < Date.now()) {
             throw new Error("Cannot update time to the past");
         }
 
@@ -57,8 +52,8 @@ const reminderService = {
         if (!ok) throw new Error("Failed to update");
         return true;
     },
+
     getReminders: async (user_id) => {
-        // Gọi hàm từ model để lấy data từ MySQL
         const reminders = await reminderModel.findRemindersByUserId(user_id); 
         return reminders;
     },
@@ -78,34 +73,41 @@ const reminderService = {
         try {
             await connection.beginTransaction();
 
-            // 1. Lock and fetch due reminders (now includes 'gmail')
+            // 1. Lấy và Khóa dữ liệu (SKIP LOCKED)
             const tasks = await reminderModel.findDueRemindersLocked(connection, 50);
 
             if (tasks.length > 0) {
-                console.log(`[Scheduler] Found ${tasks.length} due tasks.`);
+                console.log(`[Scheduler] 🔎 Tìm thấy ${tasks.length} tasks đến hạn.`);
                 
-                // 2. Create Email Logs using the data we just fetched
-                for (const task of tasks) {
-                    await emailLogModel.createLog(connection, {
-                        reminder_id: task.reminder_id,
-                        user_id: task.user_id,
-                        recipient_email: task.gmail, // Available due to JOIN
-                        subject: `🔔 Reminder: ${task.title}`,
-                        content: task.content
-                    });
-                }
+                // 2. Gom dữ liệu lại thành mảng 2 chiều
+                const emailLogData = tasks.map(task => [
+                    task.reminder_id,
+                    task.user_id,
+                    task.gmail, 
+                    `🔔 Reminder: ${task.title}`,
+                    task.content,
+                    'pending'
+                ]);
 
-                // 3. Mark reminders as 'sent'
+                // 3. ✅ FIX: Dùng Bulk Insert (INSERT IGNORE) 
+                // Nhanh hơn vòng lặp for gấp 10 lần, nếu có trùng (duplicate) tự động bỏ qua.
+                await connection.query(`
+                    INSERT IGNORE INTO emaillog (reminder_id, user_id, recipient_email, subject, content, status)
+                    VALUES ? 
+                `, [emailLogData]);
+
+                // 4. Update hàng loạt trạng thái thành 'sent'
                 const ids = tasks.map(t => t.reminder_id);
                 await reminderModel.markAsSent(connection, ids);
             }
 
+            // 5. Commit siêu tốc để trả kết nối cho MySQL
             await connection.commit();
             return tasks.length;
 
         } catch (err) {
             await connection.rollback();
-            console.error("[Scheduler] Error:", err);
+            console.error("[Scheduler Error]:", err);
             throw err;
         } finally {
             connection.release();
