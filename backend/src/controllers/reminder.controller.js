@@ -53,9 +53,10 @@ const reminderController = {
     // DELETE /reminders/:id
     delete: async (req, res, next) => {
         try {
+            console.log(" CONTROLLER Đã vào hàm Delete với ID:", req.params.id);
             const userId = Number(req.user.user_id);
             const reminderId = Number(req.params.id);
-
+            
 
             await reminderService.deleteReminder(reminderId, userId);
 
