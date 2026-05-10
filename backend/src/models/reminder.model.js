@@ -24,7 +24,7 @@ const reminderModel = {
             [user_id]
         );
         
-        return rows; 
+        return rows[0] || null;  
     },
 
 

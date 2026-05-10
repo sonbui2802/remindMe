@@ -27,10 +27,7 @@ deleteReminder: async (reminder_id, user_id) => {
         const reminder = await reminderModel.findReminderById(reminder_id);
         
         if (!reminder) throw new Error("Reminder not found");
-        console.log("--- DEBUG UNAUTHORIZED ---");
-        console.log("Reminder object from DB:", reminder);
-        console.log("User ID from Token:", user_id);
-        console.log("Compare result:", String(reminder.user_id) === String(user_id));
+        
         // Đã ép kiểu String() cả 2 vế
         if (String(reminder.user_id) !== String(user_id)) throw new Error("Unauthorized");
         
