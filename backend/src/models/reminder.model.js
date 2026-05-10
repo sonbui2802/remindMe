@@ -15,7 +15,7 @@ const reminderModel = {
             [reminder_id]
         );
         // PHẢI LÀ DÒNG NÀY: Lấy phần tử đầu tiên, nếu không có thì trả về null
-        return rows || null; 
+        return rows[0] || null; 
     },
     // Hàm này dùng cho getReminders/getAll
     findRemindersByUserId: async (user_id) => {
@@ -24,7 +24,7 @@ const reminderModel = {
             [user_id]
         );
         
-        return rows[0] || null;  
+        return rows ;  
     },
 
 
