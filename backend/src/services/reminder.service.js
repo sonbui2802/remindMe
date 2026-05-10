@@ -63,7 +63,7 @@ deleteReminder: async (reminder_id, user_id) => {
         const reminder = await reminderModel.findReminderById(reminder_id);
         if (!reminder) throw new Error("Reminder not found");
         
-        // Đã ép kiểu String() cả 2 vế
+        // Đã ép kiểu String() cả 2 vếf
         if (String(reminder.user_id) !== String(user_id)) throw new Error("Unauthorized");
 
         const ok = await reminderModel.updateReminder(reminder_id, { status: "completed" });
@@ -115,7 +115,15 @@ deleteReminder: async (reminder_id, user_id) => {
         } finally {
             connection.release();
         }
-    }
+    },
+    getReminders: async (user_id) => {
+        // Gọi xuống DB để lấy toàn bộ reminder của user này
+        
+        const reminders = await reminderModel.findRemindersByUserId(user_id);
+        
+        if (!reminders) return [];
+        return reminders;
+    },
 };
 
 export default reminderService;
